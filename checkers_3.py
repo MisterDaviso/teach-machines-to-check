@@ -57,49 +57,52 @@ class Checkers:
             variantBoard = copy.deepcopy(board)
             # Where would that direction take you?
             xMove = x + direction[0]
-            yMove = int(y + direction[1] + ((len(board[xMove]) - len(board[x])) / 2)) if xMove in range(len(board)) else 8
-                # The Y needs an adjustment since the columns aren't actually aligned
-            # Is it a valid direction?
-            print("Checking move from",x,y,"to",xMove,yMove)
-            if yMove in range(len(board[xMove])):
-                # Is it only going down the board/is the piece a king?
-                if direction[0] >= 0 and direction[1] >= 0 or board[xMove][yMove] > 2:
-                    # Is the space there empty and has the piece yet to jump?
-                    if board[xMove][yMove] == 0 and not jumped:
-                        print("It would be a simple move.")
-                        # Move the piece
-                        variantBoard[xMove][yMove] = variantBoard[x][y]
-                        variantBoard[x][y] = 0
-                        # If the piece has reached the other side of the board, king it
-                        if xMove > 3 and yMove == (len(board[xMove]) - 1) and board[xMove][yMove] <= 2:
-                            variantBoard[xMove][yMove] += 2
-                        # Add this potential move to the list
-                        moves.append(variantBoard)
-                    # Is the space containing an enemy?
-                    elif board[xMove][yMove] not in self.pieces[self.currentPlayer]:
-                        # Is the space after it valid AND empty?
-                        xJump = xMove + direction[0]
-                        yJump = int(yMove + direction[1] + ((len(board[xJump]) - len(board[xMove])) / 2)) if xJump in range(len(board)) else 8
-                        if yJump in range(len(board[xJump])) and board[xJump][yJump] == 0:
-                            print("WE'RE GONNA JUMP")
-                            # Jump your piece and remove the enemy's
-                            variantBoard[xJump][yJump] = variantBoard[x][y]
-                            variantBoard[xMove][yMove] = 0
-                            # If the piece has reached the end and isn't kinged, king it
-                            if xMove > 3 and yMove == len(board[xMove]) and board[xMove][yMove] <= 2:
-                                variantBoard[xJump][yJump] += 2
-                            # Else, cycle back through to check for more potential jumps
-                            else:
-                                moves += self.possibleMovesForPiece(xJump,yJump,True,copy.deepcopy(variantBoard))
-                            # Add the move to the board
-                            self.printBoard(variantBoard)
-                            moves.append(variantBoard)
+            if xMove in range(len(board)):
+                yMove = int(y + direction[1] + ((len(board[xMove]) - len(board[x])) / 2))
+                    # The Y needs an adjustment since the columns aren't actually aligned
+                # Is it a valid direction?
+                if yMove in range(len(board[xMove])):
+                    # Is it only going down the board/is the piece a king?
+                    if direction[0] >= 0 and direction[1] >= 0 or board[x][y] > 2:
+                        # Is the space there empty and has the piece yet to jump?
+                        if board[xMove][yMove] == 0:
+                            # Has the piece already jumped?
+                            if not jumped:
+                                # Move the piece
+                                variantBoard[xMove][yMove] = variantBoard[x][y]
+                                variantBoard[x][y] = 0
+                                # If the piece has reached the other side of the board, king it
+                                if xMove > 3 and yMove == (len(board[xMove]) - 1) and variantBoard[xMove][yMove] <= 2:
+                                    variantBoard[xMove][yMove] += 2
+                                # Add this potential move to the list
+                                moves.append(variantBoard)
+                        # Is the space containing an enemy?
+                        elif board[xMove][yMove] not in self.pieces[self.currentPlayer]:
+                            # Is the space after it valid AND empty?
+                            xJump = xMove + direction[0]
+                            if xJump in range(len(board)):
+                                yJump = int(yMove + direction[1] + ((len(board[xJump]) - len(board[xMove])) / 2))
+                                if yJump in range(len(board[xJump])) and board[xJump][yJump] == 0:
+                                    # Jump your piece and remove the enemy's
+                                    #print("GONNA JUMP FROM",x,y,"TO",xJump,yJump,"VALUE",variantBoard[x][y])
+                                    #self.printBoard(variantBoard)
+                                    variantBoard[xJump][yJump] = variantBoard[x][y]
+                                    variantBoard[xMove][yMove] = variantBoard[x][y] = 0
+                                    
+                                    # If the piece has reached the end and isn't kinged, king it
+                                    if xJump > 3 and yJump == (len(board[xJump]) - 1) and board[xJump][yJump] <= 2:
+                                        variantBoard[xJump][yJump] += 2
+                                    # Else, cycle back through to check for more potential jumps
+                                    else:
+                                        moves += self.possibleMovesForPiece(xJump,yJump,True,copy.deepcopy(variantBoard))
+                                    # Add the move to the board
+                                    moves.append(variantBoard)
         return moves
 
     # End the current player's turn
-    def takeTurn(self,newBoard):
+    def takeTurn(self,newBoard=[]):
         print("The current board:"); self.printBoard()
-        self.board = newBoard
+        if len(newBoard) > 0: self.board = newBoard
         print("The new board:"); self.printBoard()
         self.currentPlayer = 1 if self.currentPlayer == 0 else 0
         self.flipBoard()
@@ -131,7 +134,7 @@ class Checkers:
             self.p2Pieces = piecesOnBoard[2]
         print("The game has been idle for",self.idle,"turns")
         # If no piece has been taken in 20 turns, end the game.
-        if self.idle >= 20: self.gameOver = True
+        if self.idle >= 50: self.gameOver = True
         
         # Check if the player has any pieces remaining
         if self.p1Pieces == 0 or self.p2Pieces == 0: self.gameOver = True
@@ -146,9 +149,9 @@ variantBoard[0][0] = 3
 print(check.board[0][0], variantBoard[0][0])
 # Create a list of potential moves and print one out
 # Create a basic loop of possible moves
-for i in range(20):
+while(not check.gameOver):
     variations = check.possibleMoves()
     print("There are",len(variations),"possible moves")
-    check.takeTurn(variations[random.randrange(len(variations))])
+    check.takeTurn(variations[random.randrange(len(variations))]) if len(variations) > 0 else check.takeTurn()
 
 # End of file.
