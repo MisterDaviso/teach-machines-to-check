@@ -33,15 +33,28 @@ class Checkers:
     def customBoard(self,custom):
         self.board = custom
 
+    # Print a board according to the data model
     def printBoard(self,custom=[]):
         board = self.board if len(custom) == 0 else custom
         for i in range(len(board)): 
             spaces = 3 - i if i < 4 else i - 4
             print(' ' * 3 * spaces, board[i])
 
+    # Print a board that is human-readable
+    def printReadableBoard(self, custom=[]):
+        board = self.board if len(custom) == 0 else custom
+        print('  ',0,'',1,'',2,'',3,'',4,'',5,'',6,'',7)
+        print(0,'',board[0][0],' - ',board[1][2],' - ',board[2][4],' - ',board[3][6],' - ')
+        print(1,' - ',board[1][1],' - ',board[2][3],' - ',board[3][5],' - ',board[4][6])
+        print(2,'',board[1][0],' - ',board[2][2],' - ',board[3][4],' - ',board[4][5],' - ')
+        print(3,' - ',board[2][1],' - ',board[3][3],' - ',board[4][4],' - ',board[5][4])
+        print(4,'',board[2][0],' - ',board[3][2],' - ',board[4][3],' - ',board[5][3],' - ')
+        print(5,' - ',board[3][1],' - ',board[4][2],' - ',board[5][2],' - ',board[6][2])
+        print(6,'',board[3][0],' - ',board[4][1],' - ',board[5][1],' - ',board[6][1],' - ')
+        print(7,' - ',board[4][0],' - ',board[5][0],' - ',board[6][0],' - ',board[7][0])
+
     # Calculate the possible moves on a turn
     def possibleMoves(self):
-        print("The current player:",self.currentPlayer + 1)
         boardConfiguations = []
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
@@ -101,9 +114,9 @@ class Checkers:
 
     # End the current player's turn
     def takeTurn(self,newBoard=[]):
-        print("The current board:"); self.printBoard()
+        #print("The current board:"); self.printBoard()
         if len(newBoard) > 0: self.board = newBoard
-        print("The new board:"); self.printBoard()
+        #print("The new board:"); self.printBoard()
         self.currentPlayer = 1 if self.currentPlayer == 0 else 0
         self.flipBoard()
         self.gameOverConditions()
@@ -132,26 +145,64 @@ class Checkers:
             self.idle = 0
             self.p1Pieces = piecesOnBoard[1]
             self.p2Pieces = piecesOnBoard[2]
-        print("The game has been idle for",self.idle,"turns")
         # If no piece has been taken in 20 turns, end the game.
         if self.idle >= 50: self.gameOver = True
         
         # Check if the player has any pieces remaining
         if self.p1Pieces == 0 or self.p2Pieces == 0: self.gameOver = True
 
+    # Allow a move for human players
+    def humanMove(self, board):
+        self.printReadableBoard(board)
+        validCoords = False
+        while not validCoords:
+            # In case something breaks,
+            try:
+                coords1 = list(map(int, input("Enter the coordinates of which piece you wish to move and where in the form 'x1,y1,x2,y2' \n").split(",")))
+                # This list is to properly redirect moves made by players
+                    # D1 is the row and D2 is the column
+                moveMap = [
+                    [[0,0],None, [1,0],None, [2,0],None, [3,0],None,],
+                    [None, [1,1],None, [2,1],None, [3,1],None, [4,0]],
+                    [[1,2],None, [2,2],None, [3,2],None, [4,1],None,],
+                    [None, [2,3],None, [3,3],None, [4,2],None, [5,0]],
+                    [[2,4],None, [3,4],None, [4,3],None, [5,1],None,],
+                    [None, [3,5],None, [4,4],None, [5,2],None, [6,0]],
+                    [[3,6],None, [4,5],None, [5,3],None, [6,1],None,],
+                    [None, [4,6],None, [5,4],None, [6,2],None, [7,0]]
+                ]
+                start   = moveMap[coords1[0]][coords1[1]]
+                end     = moveMap[coords1[2]][coords1[3]]
+                print("This is what I have so far: input",coords1[0],coords1[1],"to",coords1[2],coords1[3],"becomes",start,"to",end)
+                if coords1[2] - coords1[0] == 1 or coords1[2] - coords1[0] == -1:
+                    # Move the Piece
+                    board[end[0]][end[1]] = board[start[0]][start[1]]
+                    board[start[0]][start[1]] = 0
+                    # Don't forget to king it if it should
+                    if board[end[0]][end[1]] <= 2 and coords1[2] == 7:
+                        board[end[0]][end[1]] += 2
+                elif coords1[2] - coords1[0] == 2 or coords1[2] - coords1[0] == -2:
+                    print("Jump is being made")
+                    # Make the jump
+                    jumpedAdjust = (np.array(end) - np.array(start)) / 2
+                    board[end[0]][end[1]] = board[start[0]][start[1]]
+                    board[start[0]][start[1]] = board[start[0]+jumpedAdjust[0]][start[1]+jumpedAdjust[1]] = 0
+                    # Don't forget to king it if it should
+                    if board[end[0]][end[1]] <= 2 and coords1[2] == 7:
+                        board[end[0]][end[1]] += 2
+                else:
+                    print("Something went wrong. Either you didn't move a piece or it wasn't a valid move.")
+                if input("Is your turn over? (y/n) \n") == "n":
+                    board = self.humanMove(copy.deepcopy(board))
+                validCoords = True
+            except:
+                if input("Something went wrong. Do you want to exit the game? (y/n)") == 'y':
+                    return 'q'
+        return board
 
-# Some practice calls
-# Create a board and print it out
-check = Checkers()
-print(check.board[0][0])
-variantBoard = copy.deepcopy(check.board)
-variantBoard[0][0] = 3
-print(check.board[0][0], variantBoard[0][0])
-# Create a list of potential moves and print one out
-# Create a basic loop of possible moves
-while(not check.gameOver):
-    variations = check.possibleMoves()
-    print("There are",len(variations),"possible moves")
-    check.takeTurn(variations[random.randrange(len(variations))]) if len(variations) > 0 else check.takeTurn()
+# Some practice bits
+# game = Checkers()
+# game.takeTurn(game.humanMove(game.board))
+# game.printReadableBoard()
 
 # End of file.
