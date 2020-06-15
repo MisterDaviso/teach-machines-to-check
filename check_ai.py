@@ -10,6 +10,7 @@ import numpy as np
 
 # Create an AI Class to keep track of everything
 class CheckersAI:
+    # Initialises the AI
     def __init__(self):
         # The synapses between the input, two hidden and output layers
         self.synapse_0 = 2*np.random.rand(32,4) - 1
@@ -51,23 +52,11 @@ class CheckersAI:
         # Return the potential move by the index of the most confident move
         return potentialMoves[mostConfidentMove[1]]
 
-    def updateWeights(self, piecesTaken, piecesLost, ):
-        # Calculate the ratio of pieces taken to pieces.
-        # A high ratio should mean a small sigmoid derivative 
-        score = piecesTaken / piecesLost if piecesLost > 0 else piecesTaken
-        output_delta = np.array(self.sigmoid_output_to_derivative(self.sigmoid(score)))
-        # Calculate error (score) and delta for layer 2
-        l2_score = output_delta.dot(self.synapse_2.T)
-        l2_delta = self.sigmoid_output_to_derivative(self.sigmoid(l2_score))
-        # Calcualte error (score) and delta for layer 1
-        l1_score = l2_delta.dot(self.synapse_1.T)
-        l1_delta = self.sigmoid_output_to_derivative(self.sigmoid(l1_score))
-        
-        # Now the backpropagation for all 3 synapse layers
-        self.synapse_2 -= self.layer_2.T.dot(output_delta)
-        self.synapse_1 -= self.layer_1.T.dot(l2_delta)
-        self.synapse_0 -= self.input_nodes.T.dot(l1_delta)
+    # Updates the AI's synapse weights so that it may learn.
+    def updateWeights(self, piecesTaken, piecesLost):
+        pass
 
+    # Updates the number of wins of the AI
     def winRound(self):
         self.roundWins += 1
         self.totalWins += 1

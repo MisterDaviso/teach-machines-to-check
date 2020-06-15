@@ -8,6 +8,7 @@ from checkers_3 import Checkers
 # Global Variables
 aiPlayers = []
 
+# Pits two AI against each other in a game of Checkers
 def aiMatch(player1,player2):
     players = [player1,player2]
     game = Checkers()
@@ -19,6 +20,7 @@ def aiMatch(player1,player2):
     if game.p1Pieces > game.p2Pieces: player1.winRound()
     if game.p2Pieces > game.p1Pieces: player2.winRound()
 
+# Trains incoming AI to determine who is the best
 def checkersAiDojo():
     # 1. Create a list of 20 AI
     for i in range(20): aiPlayers.append(CheckersAI())
@@ -49,6 +51,7 @@ def checkersAiDojo():
         # 5. Create new 15 new ai to replace the lowest scoring ones
         for o in range(5,20): aiPlayers[o] = CheckersAI()
 
+# Allows a human to play against one of the AI from the dojo
 def aiVsHuman(ai):
     game = Checkers()
     humanTurn = int(input("Do you wish to go first (0) or second (1)?\n"))
@@ -66,7 +69,11 @@ def aiVsHuman(ai):
             game.takeTurn(bestMove)
             print("\n","The board after the AI move:")
 
+# Call the dojo function
 checkersAiDojo()
+
+# Would you like to play a game?
 aiVsHuman(aiPlayers[0])
+
 
 # End of file

@@ -6,6 +6,7 @@ import random
 import copy
 
 class Checkers:
+    # Initializes a game board
     def __init__(self):
         # While pieces are designated 1-4, the players are a binary 1 and 0
         self.currentPlayer = 0
@@ -17,6 +18,7 @@ class Checkers:
         self.gameOver = False
         self.directions = [[1,0], [0,1], [-1,0], [0,-1]]
 
+    # Creates a fresh, clean board to play checkers with
     def newBoard(self):
         board = np.array([
                   [1],
@@ -30,6 +32,7 @@ class Checkers:
         ], dtype=object)
         return board
     
+    # Allows you to start a game from a custom board
     def customBoard(self,custom):
         self.board = custom
 
