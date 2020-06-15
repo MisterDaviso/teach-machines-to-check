@@ -13,7 +13,7 @@ class CheckersAI:
     # Initialises the AI
     def __init__(self):
         # The synapses between the input, two hidden and output layers
-        self.synapse_0 = 2*np.random.rand(32,4) - 1
+        self.synapse_0 = 2*np.random.rand(33,4) - 1
         self.synapse_1 = 2*np.random.rand(4,4) - 1
         self.synapse_2 = 2*np.random.rand(4,1) - 1
         # The number of times the algorithm has won a match
@@ -29,7 +29,7 @@ class CheckersAI:
         return sigmoidTensor*(1-sigmoidTensor)
 
     # Determines the best possible move.
-    def determineMove(self, currentBoard, potentialMoves):
+    def determineMove(self, currentBoard, potentialMoves, turn):
         # If there are no valid moves, return the original board
         if len(potentialMoves) == 0: return currentBoard
         # Set a default for the most confident move
@@ -37,13 +37,14 @@ class CheckersAI:
         # For each of the potential moves,
         for i in range(len(potentialMoves)):
             # Turn the board into a vector and save it as the input nodes
-            self.input_nodes, iterator = np.empty([32]), 0
+            self.input_nodes, iterator = np.empty([33]), 0
             for j in range(len(potentialMoves[i])):
                 for k in range(len(potentialMoves[i][j])):
                     self.input_nodes[iterator] = potentialMoves[i][j][k]
                     iterator += 1
+            self.input_nodes[32] = turn
             # Feed the input into the neural network
-            self.input_nodes = np.reshape(self.input_nodes, (1,32))
+            self.input_nodes = np.reshape(self.input_nodes, (1,33))
             self.layer_1 = np.reshape(self.sigmoid(np.dot(self.input_nodes,self.synapse_0)), (1,4))
             self.layer_2 = np.reshape(self.sigmoid(np.dot(self.layer_1,self.synapse_1)), (1,4))
             self.rating = self.sigmoid(np.dot(self.layer_2,self.synapse_2))

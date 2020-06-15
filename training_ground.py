@@ -14,18 +14,18 @@ def aiMatch(player1,player2):
     game = Checkers()
     while not game.gameOver:
         moves = game.possibleMoves()
-        bestMove = players[game.currentPlayer].determineMove(game.board,moves)
+        bestMove = players[game.currentPlayer].determineMove(game.board,moves,game.currentPlayer)
         game.takeTurn(bestMove)
     #print("Score: p1 has",game.p1Pieces,"pieces left and p2 has",game.p2Pieces,"pieces left.")
     if game.p1Pieces > game.p2Pieces: player1.winRound()
     if game.p2Pieces > game.p1Pieces: player2.winRound()
 
 # Trains incoming AI to determine who is the best
-def checkersAiDojo():
+def checkersAiDojo(rounds):
     # 1. Create a list of 20 AI
     for i in range(20): aiPlayers.append(CheckersAI())
     # 6. Repeat 2-5 10 times
-    for p in range(10):
+    for p in range(rounds):
         # 2. Cycle through every potential pairing and pit them against each other
         for j in range(len(aiPlayers)):
             for k in range(j+1, len(aiPlayers)):
@@ -65,12 +65,12 @@ def aiVsHuman(ai):
             else: game.takeTurn(move)
         else:
             moves = game.possibleMoves()
-            bestMove = ai.determineMove(game.board,moves)
+            bestMove = ai.determineMove(game.board,moves,game.currentPlayer)
             game.takeTurn(bestMove)
             print("\n","The board after the AI move:")
 
 # Call the dojo function
-checkersAiDojo()
+checkersAiDojo(10)
 
 # Would you like to play a game?
 aiVsHuman(aiPlayers[0])
