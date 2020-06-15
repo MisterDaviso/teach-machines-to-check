@@ -22,7 +22,7 @@ def aiMatch(player1,player2):
 def checkersAiDojo():
     # 1. Create a list of 20 AI
     for i in range(20): aiPlayers.append(CheckersAI())
-    # 6. Repeat 2-5 100 times
+    # 6. Repeat 2-5 10 times
     for p in range(10):
         # 2. Cycle through every potential pairing and pit them against each other
         for j in range(len(aiPlayers)):
@@ -51,16 +51,20 @@ def checkersAiDojo():
 
 def aiVsHuman(ai):
     game = Checkers()
-    humanTurn = int(input("Do you wish to go first (0) or second (1)?"))
+    humanTurn = int(input("Do you wish to go first (0) or second (1)?\n"))
+    print("The Board:")
+    if humanTurn == 1:
+        game.printReadableBoard()
     while not game.gameOver:
         if game.currentPlayer == humanTurn:
             move = game.humanMove(game.board)
-            if move == "q": game.gameOver=True
+            if len(move)==0: game.gameOver=True
             else: game.takeTurn(move)
         else:
             moves = game.possibleMoves()
             bestMove = ai.determineMove(game.board,moves)
             game.takeTurn(bestMove)
+            print("\n","The board after the AI move:")
 
 checkersAiDojo()
 aiVsHuman(aiPlayers[0])

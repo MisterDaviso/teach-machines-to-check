@@ -173,7 +173,7 @@ class Checkers:
                 ]
                 start   = moveMap[coords1[0]][coords1[1]]
                 end     = moveMap[coords1[2]][coords1[3]]
-                print("This is what I have so far: input",coords1[0],coords1[1],"to",coords1[2],coords1[3],"becomes",start,"to",end)
+                print("Moving",coords1[0],coords1[1],"to",coords1[2],coords1[3])
                 if coords1[2] - coords1[0] == 1 or coords1[2] - coords1[0] == -1:
                     # Move the Piece
                     board[end[0]][end[1]] = board[start[0]][start[1]]
@@ -182,11 +182,11 @@ class Checkers:
                     if board[end[0]][end[1]] <= 2 and coords1[2] == 7:
                         board[end[0]][end[1]] += 2
                 elif coords1[2] - coords1[0] == 2 or coords1[2] - coords1[0] == -2:
-                    print("Jump is being made")
                     # Make the jump
-                    jumpedAdjust = (np.array(end) - np.array(start)) / 2
+                    jumpedAdjust = list([int((coords1[2]-coords1[0])/2), int((coords1[3]-coords1[1])/2)])
+                    jump = moveMap[(coords1[0]+jumpedAdjust[0])][(coords1[1]+jumpedAdjust[1])]
                     board[end[0]][end[1]] = board[start[0]][start[1]]
-                    board[start[0]][start[1]] = board[start[0]+jumpedAdjust[0]][start[1]+jumpedAdjust[1]] = 0
+                    board[start[0]][start[1]] = board[jump[0]][jump[1]] = 0
                     # Don't forget to king it if it should
                     if board[end[0]][end[1]] <= 2 and coords1[2] == 7:
                         board[end[0]][end[1]] += 2
@@ -197,12 +197,10 @@ class Checkers:
                 validCoords = True
             except:
                 if input("Something went wrong. Do you want to exit the game? (y/n)") == 'y':
-                    return 'q'
+                    return []
+        print("The board after your move:")
+        self.printReadableBoard(board)
         return board
 
-# Some practice bits
-# game = Checkers()
-# game.takeTurn(game.humanMove(game.board))
-# game.printReadableBoard()
 
 # End of file.
